@@ -2,7 +2,6 @@
 
 set -o noglob
 
-clear
 
 declare -a grid
 
@@ -35,7 +34,7 @@ function scan() {
         continue
       fi
       echo "$number"
-      break
+      return
     done
   done
 }

@@ -34,7 +34,7 @@ function scan() {
       fi
       if [[ "${grid[r]:c:1}" == '*' ]]; then
         gears["$r $c"]="${gears["$r $c"]},$number"
-        break
+        return
       fi
     done
   done
