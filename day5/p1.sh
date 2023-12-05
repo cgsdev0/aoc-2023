@@ -1,7 +1,5 @@
 #!/bin/bash
 
-clear
-
 function parse() {
   local IFS=
   read -r line
@@ -31,6 +29,6 @@ function parse() {
 
 }
 
-parse < input2.txt \
+parse < input.txt \
   | sort -n \
   | head -n1

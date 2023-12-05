@@ -1,6 +1,6 @@
 #!/bin/bash
 
-clear
+FILE=input.txt
 
 function sort_map() {
   local IFS=
@@ -14,33 +14,24 @@ function sort_map() {
   done
 }
 
-function debug() {
-  echo "$@" 1>&2
-}
 function range_intersection() {
   local ad as al bd bs bl change
   read ad as al <<< "$1"
   read bd bs bl <<< "$2"
-  # debug "< $1"
-  # debug "> $2"
   ae=$((as+al-1))
   be=$((bd+bl-1))
   if [[ $ae -gt $be ]] && [[ $as -gt $be ]]; then
-    # debug "no intersect"
     return
   fi
   if [[ $as -lt $bd ]] && [[ $ae -lt $bd ]]; then
-    # debug "no intersect"
     return
   fi
   if [[ $bd -lt $as ]]; then
-    # debug "trimming start"
     change=$((as-bd))
     bd=$as
     ((bs+=change))
   fi
   if [[ $be -gt $ae ]]; then
-    # debug "trimming end"
     be=$ae
   fi
   bl=$((be-bd+1))
@@ -155,6 +146,48 @@ function do_the_thing() {
   done
 }
 
-parse < input.txt \
-  | cut -d' ' -f1 \
-  | paste -sd' '
+function parse_p1() {
+  local IFS=
+  read -r line
+  seeds=$(echo $line \
+    | cut -d' ' -f2- \
+    | sed 's/ /\n/g')
+
+
+  read -r line
+
+  translators=$(grep -v ':' \
+    | sed ':a;N;$!ba;s/\n\n/@/g;s/\n/|/g;s/@/\n/g' \
+    | sed 's/\([0-9]\+\) \([0-9]\+\) \([0-9]\+\)/(@>=\2\&\&@<(\2+\3))*(@-\2+\1)/g' \
+    | tr '|' '+')
+
+  while read -r seed; do
+    while read -r translator; do
+      translation=$(echo "$translator" \
+        | sed "s/@/$seed/g" \
+        | bc)
+      if [[ "$translation" != "0" ]]; then
+        seed=$translation
+      fi
+    done <<< "${translators}"
+    echo $seed
+  done <<< "${seeds}"
+}
+
+function p1() {
+  parse_p1 \
+    | sort -n \
+    | head -n1
+}
+
+
+function find_good_guesses() {
+  MY_LUCKY_PICKS="$(parse < $FILE \
+    | cut -d' ' -f1 \
+    | paste -sd' ')"
+  echo "seeds: $MY_LUCKY_PICKS"
+  cat $FILE \
+    | tail +2
+}
+
+p1 < <(find_good_guesses)
