@@ -1,18 +1,18 @@
 #!/bin/bash
 
-clear
-
 FILE=input.txt
 
 function calculate() {
-  read time
-  read distance
-  seq 0 $time \
-    | awk '{ print "(('$time'-"$0")*"$0")>'$distance'"; }' \
-    | bc \
-    | grep '^1$' -c
+  read t
+  read d
+
+  echo $(\
+    echo "$(\
+      echo "sqrt($t * $t - 4 * $d)" \
+      | bc -l) / 1 + 1" \
+    | bc)
 }
 
-calculate < <(cat $FILE \
-  | cut -d' ' -f2- \
-  | tr -d ' ')
+cut -d' ' -f2- $FILE \
+  | tr -d ' ' \
+  | calculate
