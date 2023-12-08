@@ -11,6 +11,7 @@ declare -a cycles
 function debug() {
   echo "$*" 1>&2
 }
+
 function main() {
   read instructions
   read
