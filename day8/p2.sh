@@ -8,6 +8,9 @@ declare -A map
 declare -a starts
 declare -a cycles
 
+function debug() {
+  echo "$*" 1>&2
+}
 function main() {
   read instructions
   read
@@ -20,19 +23,11 @@ function main() {
     | tr -ds '=(,)' ' ')
 
   for start in "${starts[@]}"; do
-    echo "$start"
+    debug "$start"
     curr="$start"
     idx=0
     steps=0
-    declare -A visited
-    while true; do
-      if [[ ! -z ${visited[$curr]} ]]; then
-        start_idx="${visited[$curr]}"
-        cycle_len=$((steps-start_idx))
-        ((start_idx--))
-        break
-      fi
-      visited[$curr]=$steps
+    while ! [[ $curr =~ .*Z ]]; do
       instr=${instructions:idx:1}
       case $instr in
         L)
@@ -48,37 +43,28 @@ function main() {
       idx=$(( (idx+1) % len))
       ((steps++))
     done
-    echo "$start_idx $cycle_len"
-    cycles+=("$start_idx $cycle_len")
+    debug $steps
+    cycles+=($steps)
   done
 
-  smallest=$(for cycle in "${cycles[@]}"; do
-    read start len <<< "$cycle"
-    echo "$len $start"
+  # find LCM
+  debug
+  debug "finding LCM"
+  for cycle in "${cycles[@]}"; do
+    factor $cycle 1>&2
+    factor $cycle \
+      | cut -d' ' -f2- \
+      | tr ' ' '\n' \
+      | sort -n \
+      | uniq -c
   done \
-    | sort -n \
-    | head -n1)
-
-  echo "SMALLEST: $smallest"
-  read slen start <<< "$smallest"
-  multiple=1
-  while true; do
-    check=$((multiple*slen + sstart))
-    should_break=true
-    for cycle in "${cycles[@]}"; do
-      read start len <<< "$cycle"
-      idk=$(((check - start) % len))
-      if [[ $idk -ne 0 ]]; then
-        should_break=false
-      fi
-    done
-    if [[ "$should_break" == true ]]; then
-      break
-    fi
-    ((multiple++))
-  done
-  echo "$multiple"
-  echo $((multiple*slen + sstart))
+    | sort -k2n -k1nr \
+    | uniq -f1 \
+    | tr -s ' ' \
+    | sed 's/^ \([^ ]*\) \([^ ]*\)$/\2^\1/' \
+    | bc \
+    | paste -sd'*' \
+    | bc
 }
 
 main < $FILE
