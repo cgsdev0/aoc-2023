@@ -207,6 +207,11 @@ for line in "${grid[@]}"; do
   done <<< "$line"
   echo
   ((row++))
+
+  # ok, now things are about to get REAL dank
+  # 
+  # for the readers at home, 'convert'
+  # is a program called 'imagemagick'
 done \
  | convert -background black -fill white \
   +antialias \
