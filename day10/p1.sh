@@ -126,22 +126,16 @@ function move() {
     | grep -v "^$last " \
     | head -n1)
   read garbage last row col <<< "$next"
-  # echo "$last"
 }
 
 row=$sr
 col=$sc
 
 state=moving
-# i=50
 count=0
 while [[ $state != "done" ]]; do
   move
   ((count++))
-  # ((i--))
-  # if [[ $i -eq 0 ]]; then
-  #   break
-  # fi
 done
-echo "done :)"
+
 echo "$((count/2))"
