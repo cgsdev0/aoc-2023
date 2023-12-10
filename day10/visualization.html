@@ -1,0 +1,298 @@
+<!doctype html>
+<html>
+<head>
+<style>
+body {
+  background-color: black;
+  color: white;
+}
+  canvas {
+    border: 1px solid white;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+  h1 {
+    font-family: Verdana;
+    position: absolute;
+    bottom: 0;
+    right: 20px;
+  }
+  div {
+    position: relative;
+    display: inline;
+  }
+</style>
+<script>
+  function raf() {
+    return new Promise(resolve => {
+        requestAnimationFrame(resolve);
+    });
+  }
+  document.addEventListener("DOMContentLoaded", async (event) => {
+    const canvas = document.querySelector("canvas");
+    const ctx = canvas.getContext("2d");
+    const result = await window.fetch("/input.txt");
+    const lines = (await result.text()).split('\n');
+    const grid = lines.map(a => a.split(''));
+    let sr = 0;
+    let sc = 0;
+    grid.forEach((line,i) => {
+      const where = line.findIndex(a => a === "S");
+      if (where !== -1) {
+        sr = i;
+        sc = where;
+      }
+    });
+    console.log({sr, sc});
+
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    // Draw start
+    ctx.fillStyle = "#FF0000";
+    ctx.fillRect(sc * 3, sr * 3, 3, 3);
+
+    const down_valid = ['S', '|', 'F', '7'];
+    const up_valid = ['J', '|', 'S', 'L'];
+    const left_valid = ['J', '-', 'S', '7'];
+    const right_valid = ['S', '-', 'L', 'F'];
+    const check_right = (row, col) => {
+      if (col === grid.length - 1) return;
+      const next=grid[row][col+1];
+      const here=grid[row][col];
+      if (!right_valid.includes(here)) {
+        return;
+      }
+      if (!left_valid.includes(next)) {
+        return;
+      }
+
+      return {
+        prev: "right",
+        row,
+        col: col + 1,
+      }
+    }
+    const check_left = (row, col) => {
+      if (col === 0) return;
+      const next=grid[row][col-1];
+      const here=grid[row][col];
+      if (!left_valid.includes(here)) {
+        return;
+      }
+      if (!right_valid.includes(next)) {
+        return;
+      }
+
+      return {
+        prev: "left",
+        row,
+        col: col - 1,
+      }
+    }
+    const check_up = (row, col) => {
+      if (row === 0) return;
+      const next=grid[row-1][col];
+      const here=grid[row][col];
+      if (!up_valid.includes(here)) {
+        return;
+      }
+      if (!down_valid.includes(next)) {
+        return;
+      }
+
+      return {
+        prev: "up",
+        row: row - 1,
+        col
+      }
+    }
+    const check_down = (row, col) => {
+      if (row === grid.length - 1) return;
+      const next=grid[row+1][col];
+      const here=grid[row][col];
+      if (!down_valid.includes(here)) {
+        return;
+      }
+      if (!up_valid.includes(next)) {
+        return;
+      }
+
+      return {
+        prev: "down",
+        row: row + 1,
+        col
+      }
+    }
+    let row = sr;
+    let col = sc;
+    let prev = "NA";
+    const invert = {
+      "left": "right",
+      "right": "left",
+      "up": "down",
+      "down": "up",
+    };
+    let done = false;
+    const draw = ({row, col}) => {
+      if (grid[row][col] === "S") {
+        return;
+      }
+      ctx.fillStyle = "#00FF00";
+        ctx.fillRect(col * 3 + 1, row * 3 + 1, 1, 1);
+      switch(grid[row][col]) {
+        case '-':
+        ctx.fillRect(col * 3, row * 3 + 1, 3, 1);
+          break;
+        case '|':
+        ctx.fillRect(col * 3 + 1, row * 3, 1, 3);
+          break;
+        case 'F':
+        ctx.fillRect(col * 3 + 2, row * 3 + 1, 1, 1);
+        ctx.fillRect(col * 3 + 1, row * 3 + 2, 1, 1);
+          break;
+        case 'L':
+        ctx.fillRect(col * 3 + 2, row * 3 + 1, 1, 1);
+        ctx.fillRect(col * 3 + 1, row * 3, 1, 1);
+          break;
+        case 'J':
+        ctx.fillRect(col * 3, row * 3 + 1, 1, 1);
+        ctx.fillRect(col * 3 + 1, row * 3, 1, 1);
+          break;
+        case '7':
+        ctx.fillRect(col * 3, row * 3 + 1, 1, 1);
+        ctx.fillRect(col * 3 + 1, row * 3 + 2, 1, 1);
+          break;
+      }
+    }
+    const move = async () => {
+      if (prev !== "NA" && grid[row][col] === "S") {
+        console.log("DONE");
+        phase2();
+        return false;
+      }
+      const opts = [
+        check_left(row, col),
+        check_right(row, col),
+        check_up(row, col),
+        check_down(row, col)
+      ].filter(Boolean).filter(a => invert[a.prev] !== prev);
+      const selection = opts[0];
+      row = selection.row;
+      col = selection.col;
+      prev = selection.prev;
+      draw(selection);
+      await raf();
+      move();
+    }
+    window.move = move;
+
+  function getPixel(imageData, x, y) {
+    if (x < 0 || y < 0 || x >= imageData.width || y >= imageData.height) {
+      return [-1, -1, -1, -1];  // impossible color
+    } else {
+      const offset = (y * imageData.width + x) * 4;
+      return imageData.data.slice(offset, offset + 4);
+    }
+  }
+
+  function setPixel(imageData, x, y, color) {
+    const offset = (y * imageData.width + x) * 4;
+    imageData.data[offset + 0] = color[0];
+    imageData.data[offset + 1] = color[1];
+    imageData.data[offset + 2] = color[2];
+    imageData.data[offset + 3] = color[3];
+  }
+
+  function colorsMatch(a, b) {
+    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
+  }
+
+  async function floodFill(ctx, x, y, fillColor) {
+    // read the pixels in the canvas
+    const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    // get the color we're filling
+    const targetColor = getPixel(imageData, x, y);
+
+    // check we are actually filling a different color
+    if (!colorsMatch(targetColor, fillColor)) {
+
+      const pixelsToCheck = [x, y];
+      let i = 0;
+      while (pixelsToCheck.length > 0) {
+        i+=1;
+        const y = pixelsToCheck.pop();
+        const x = pixelsToCheck.pop();
+
+        const currentColor = getPixel(imageData, x, y);
+        if (colorsMatch(currentColor, targetColor)) {
+          setPixel(imageData, x, y, fillColor);
+          pixelsToCheck.push(x + 1, y);
+          pixelsToCheck.push(x - 1, y);
+          pixelsToCheck.push(x, y + 1);
+          pixelsToCheck.push(x, y - 1);
+        }
+        if (i % 50 === 0) {
+        await raf();
+        ctx.putImageData(imageData, 0, 0);
+        }
+      }
+    }
+  }
+    const counter = document.querySelector('#count');
+    let cnt = 0;
+    const count = () => {
+      cnt++;
+      counter.innerHTML = cnt.toString();
+    }
+    const phase2 = async () => {
+    // Draw start
+    ctx.fillStyle = "#00FF00";
+    ctx.fillRect(sc * 3, sr * 3, 3, 3);
+
+    let i = 0;
+    for(let r=0; r < grid.length; r++) {
+      for(let c=0; c < grid.length; c++) {
+          i+=1;
+          if(i % 10 === 0) {
+            await raf();
+          }
+          ctx.fillRect(c * 3 + 1, r * 3 + 1, 1, 1);
+      }
+    }
+    await floodFill(ctx, 0, 0, [0, 255, 0, 255]);
+    await floodFill(ctx, 0, 0, [0, 0, 0, 255]);
+    const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = "#000000";
+      const pos = [];
+    for(let r=0; r < grid.length; r++) {
+      for(let c=0; c < grid.length; c++) {
+          if (getPixel(imageData, c*3+1, r*3+1)[1] === 255) {
+            pos.unshift(r*3+1);
+            pos.unshift(c*3+1);
+          }
+      }
+    }
+    ctx.strokeStyle = "#aaaaaa30";
+      while(pos.length > 0) {
+          const y = pos.pop();
+          const x = pos.pop();
+          ctx.beginPath();
+          ctx.arc(x+0.5, y+0.5, 7, 0, 2 * Math.PI);
+          ctx.stroke();
+          await raf();
+          await raf();
+          await raf();
+          count();
+      }
+    }
+});
+</script>
+</head>
+<body>
+  <div>
+  <canvas width=420 height=420> </canvas>
+  <h1 id="count">0</h1>
+  </div>
+</body>
+</html>
