@@ -106,21 +106,24 @@ function descend() {
   # printl 0 "${#cache[@]} cache miss $key"
 }
 
-while read record sizes; do
-  record=${record}?${record}?${record}?${record}?${record}
-  sizes=${sizes},${sizes},${sizes},${sizes},${sizes}
-  # record=${record}?${record}?${record}
-  # sizes=${sizes},${sizes},${sizes}
-  # record=${record}?${record}
-  # sizes=${sizes},${sizes}
-  maxdepth=${sizes//[^,]/}
-  maxdepth=${#maxdepth}
-  ((maxdepth++))
-  counter=0
-  # echo "$record $sizes"
-  descend "$record" "$sizes" "$maxdepth" 0
-  echo $counter
+function main() {
+  while read record sizes; do
+    record=${record}?${record}?${record}?${record}?${record}
+    sizes=${sizes},${sizes},${sizes},${sizes},${sizes}
+    maxdepth=${sizes//[^,]/}
+    maxdepth=${#maxdepth}
+    ((maxdepth++))
+    counter=0
+    descend "$record" "$sizes" "$maxdepth" 0
+    echo $counter
+  done
+}
 
-done < "$FILE" \
-  | paste -sd + \
-  | bc
+if [[ ! -z "$DONT_FORK_BOMB_ME_BRO" ]]; then
+  main
+else
+  export DONT_FORK_BOMB_ME_BRO=true
+  <$FILE parallel --pipe -N 100 $0 \
+    | paste -sd+ \
+    | bc
+fi
