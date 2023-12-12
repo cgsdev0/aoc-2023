@@ -3,15 +3,17 @@
 set -o noglob
 
 
-FILE=sample.txt
+FILE=input.txt
 
 function printl() {
-  return
   local indent=$1
   printf "%*s" $indent "" 1>&2
   shift
   printf "%s\n" "$*" 1>&2
 }
+
+
+declare -A cache
 
 function descend() {
   local record="$1"
@@ -22,12 +24,23 @@ function descend() {
   if [[ $iter -eq 0 ]]; then
     local left=${record//[^#]/}
     if [[ ${#left} -eq 0 ]]; then
-      printl 0 "------------"
-      echo "------------"
+      # printl 0 "------------"
+      ((counter++))
     fi
     return
   fi
 
+
+  local key="$record $sizes"
+  if [[ ! -z "${cache[$key]}" ]]; then
+    local cached=${cache[$key]}
+    ((counter+=cached))
+    # printl 0 "cache hit $key"
+    return
+  fi
+
+
+  local counter_before=$counter
   # pop size from sizes
   local size="${sizes%%,*}"
   sizes="${sizes#*,}"
@@ -35,8 +48,10 @@ function descend() {
   if [[ -z "$record" ]]; then
     return
   fi
-  printl $sliced $record $size "depth:$iter"
+  # printl $sliced $record $size "depth:$iter"
 
+  local cost=${sizes//[,]/+}
+  cost=$((cost))
 
   local idx=0
   local char
@@ -44,19 +59,27 @@ function descend() {
     if [[ "$char" == "" ]]; then
       continue
     fi
+
+    local remainder=${record:idx}
+    local budget="${remainder//[^#?]/}"
+    budget=${#budget}
+    if [[ $budget -lt cost ]]; then
+      break
+    fi
+
     local slice="${record:idx:size}"
     if [[ ${#slice} -lt $size ]]; then
-      return
+      break
     fi
     if [[ ${slice:0:1} == "." ]]; then
       ((idx++))
       continue
     fi
-    printl 0 "$iter --> $slice"
+    # printl 0 "$iter --> $slice"
     group=${slice//[^?#]/}
     if [[ ${#group} -lt $size ]]; then
       if [[ "${slice:0:1}" == "#" ]]; then
-        return
+        break
       fi
       ((idx++))
       continue
@@ -68,7 +91,7 @@ function descend() {
     fi
     # check if we hit obsidian
     if [[ "${slice:0:1}" == "#" ]]; then
-      return
+      break
     fi
     # wtf was the point of this? idk
     # check if we hit air
@@ -77,18 +100,26 @@ function descend() {
     # fi
     ((idx++))
   done <<< "$record"
+
+  local change=$((counter-counter_before))
+  cache[$key]=$change
+  # printl 0 "${#cache[@]} cache miss $key"
 }
 
 while read record sizes; do
   record=${record}?${record}?${record}?${record}?${record}
   sizes=${sizes},${sizes},${sizes},${sizes},${sizes}
+  # record=${record}?${record}?${record}
+  # sizes=${sizes},${sizes},${sizes}
+  # record=${record}?${record}
+  # sizes=${sizes},${sizes}
   maxdepth=${sizes//[^,]/}
   maxdepth=${#maxdepth}
   ((maxdepth++))
-
+  counter=0
   # echo "$record $sizes"
-  descend "$record" "$sizes" "$maxdepth" 0 \
-    | wc -l
+  descend "$record" "$sizes" "$maxdepth" 0
+  echo $counter
 
 done < "$FILE" \
   | paste -sd + \
