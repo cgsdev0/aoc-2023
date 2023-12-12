@@ -22,7 +22,6 @@ function descend() {
   if [[ $iter -eq 0 ]]; then
     local left=${record//[^#]/}
     if [[ ${#left} -eq 0 ]]; then
-      printl 0 "------------"
       echo "------------"
     fi
     return
@@ -52,7 +51,6 @@ function descend() {
       ((idx++))
       continue
     fi
-    printl 0 "$iter --> $slice"
     group=${slice//[^?#]/}
     if [[ ${#group} -lt $size ]]; then
       if [[ "${slice:0:1}" == "#" ]]; then
@@ -83,7 +81,6 @@ while read record sizes; do
   maxdepth=${sizes//[^,]/}
   maxdepth=${#maxdepth}
   ((maxdepth++))
-  # echo "$record $sizes"
   descend "$record" "$sizes" "$maxdepth" 0 \
     | wc -l
 
