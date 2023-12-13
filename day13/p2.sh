@@ -2,7 +2,7 @@
 
 clear
 
-FILE=sample.txt
+FILE=input.txt
 function rotate() {
   awk '{
     split($0, chars, "")
@@ -22,7 +22,6 @@ function debug() {
 
 function solve_line() {
   local len=${#1}
-  local row=$2
   local i
   # debug
   # debug
@@ -46,8 +45,6 @@ function solve_line() {
     if [[ "$LEFT" == "$RIGHT" ]]; then
       debug "----- $((i+1))"
       echo "$((i+1))"
-    else
-      echo "NOT $((i+1)) ON $row"
     fi
   done
 }
@@ -55,36 +52,24 @@ function solve_line() {
 function solve() {
   local line
   local row=0
-  data=$(while IFS= read -r line; do
+  while IFS= read -r line; do
     debug "$line"
-    solve_line "$line" "$row"
-    ((row++))
-  done)
-  close=$(echo "$data" \
-    | grep -v "NOT" \
+    solve_line "$line"
+  done \
     | sort -n \
     | uniq -c \
     | sed 's/^ *//g' \
-    | grep "^$(($1-1)) ")
-
-  if [[ ! -z "$close" ]]; then
-    read count close_col <<< "$close"
-    echo "$data" \
-      | grep "NOT $close_col"
-  fi
-    # | cut -d' ' -f2 \
-    # | sed "s/\$/*$2/g" \
-    # | paste -sd+ \
-    # | bc
+    | grep "^$(($1-1)) " \
+    | cut -d' ' -f2 \
+    | sed "s/\$/*$2/g"
 }
 
 lines=""
 height=1
 while IFS= read -r line; do
   if [[ "$line" == "" ]]; then
-    # solve $height 1 <<< "$lines"
+    solve $height 1 <<< "$lines"
     solve $width 100 < <(echo "$lines" | rotate)
-    break
     lines=""
     height=1
   fi
@@ -96,6 +81,7 @@ while IFS= read -r line; do
 $line"
   ((height++))
   fi
-done < $FILE
-  # | paste -sd+ \
-  # | bc
+done < $FILE \
+  | tee /dev/fd/2 \
+  | paste -sd+ \
+  | bc
