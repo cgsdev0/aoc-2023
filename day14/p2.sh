@@ -2,7 +2,7 @@
 
 clear
 
-FILE=input.txt
+FILE=sample.txt
 
 declare -A grid
 row=0
@@ -48,8 +48,17 @@ function idx() {
   fi
 }
 
+function serialize_grid() {
+  local x y
+  for ((y=0; y<height; y++)); do
+    for ((x=0; x<width; x++)); do
+      local char2=${grid["${y},${x}"]}
+      printf "%s" $char2
+    done
+  done
+}
+
 function load() {
-  gravity=N
   total=0
   local x y
   for ((y=0; y<height; y++)); do
@@ -60,7 +69,7 @@ function load() {
       fi
     done
   done
-  echo $total
+  echo "FINAL ANSWER: $total"
 }
 
 
@@ -76,7 +85,6 @@ function visualize() {
   load
   sleep 0.2
 }
-visualize
 
 gravity=N
 function apply_gravity() {
@@ -113,8 +121,24 @@ function spin_cycle() {
   gravity=E
   apply_gravity
   visualize
-  load
 }
+
+declare -A hashes
 for ((iter=0; iter<1000; iter++)); do
   spin_cycle
+  gridsha=$(serialize_grid | sha256sum | cut -d' ' -f1)
+  echo "iteration $iter"
+  if [[ -z ${hashes[$gridsha]} ]]; then
+    hashes[$gridsha]=$iter
+  elif [[ -z "$solution_index" ]]; then
+    offset=${hashes[$gridsha]}
+    cycle=$((iter-offset))
+    echo "CYCLE DETECTED" $offset $cycle
+    cycle_offset=$((( 10**9 - offset - 1 ) % cycle))
+    solution_index=$((iter + cycle_offset))
+  fi
+  if [[ $iter -eq ${solution_index:--1} ]]; then
+    load
+    break
+  fi
 done
