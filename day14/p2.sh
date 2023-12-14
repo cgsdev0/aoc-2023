@@ -2,7 +2,8 @@
 
 clear
 
-FILE=sample.txt
+FILE=input.txt
+VISUALIZE=false
 
 declare -A grid
 row=0
@@ -74,7 +75,7 @@ function load() {
 
 
 function visualize() {
-  return
+  [[ $VISUALIZE == true ]] || return
   clear
   for ((y=0; y<height; y++)); do
     for ((x=0; x<width; x++)); do
@@ -82,8 +83,6 @@ function visualize() {
     done
     printf "\n"
   done
-  load
-  sleep 0.2
 }
 
 gravity=N
@@ -125,15 +124,14 @@ function spin_cycle() {
 
 declare -A hashes
 for ((iter=0; iter<1000; iter++)); do
+  [[ "$VISUALIZE" == false ]] && echo "iteration $iter"
   spin_cycle
   gridsha=$(serialize_grid | sha256sum | cut -d' ' -f1)
-  echo "iteration $iter"
   if [[ -z ${hashes[$gridsha]} ]]; then
     hashes[$gridsha]=$iter
   elif [[ -z "$solution_index" ]]; then
     offset=${hashes[$gridsha]}
     cycle=$((iter-offset))
-    echo "CYCLE DETECTED" $offset $cycle
     cycle_offset=$((( 10**9 - offset - 1 ) % cycle))
     solution_index=$((iter + cycle_offset))
   fi
