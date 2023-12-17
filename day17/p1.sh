@@ -101,15 +101,13 @@ heapify_down() {
         fi
     done
 }
-# for each vertex v in Graph.Vertices:
-#     dist[v] ← INFINITY
-#     prev[v] ← UNDEFINED
-#     add v to Q
+
+enqueue 0,0,0
+declare -A cameFrom
+declare -A gScore
 for ((r=0; r<size; r++)); do
   for ((c=0; c<size; c++)); do
     v="$r,$c"
-    qmap[$v]=1
-    # dist[source] ← 0
     if [[ $r -eq 0 ]] && [[ $c -eq 0 ]]; then
       dist[$v]=0
     else
