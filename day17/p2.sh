@@ -1,7 +1,7 @@
 #!/bin/bash
 
 clear
-FILE=sample.txt
+FILE=input.txt
 
 declare -a grid
 while read -r line; do
@@ -207,8 +207,8 @@ while [[ ${#priority_queue[@]} -gt 0 ]]; do
       cameFrom[$v]=$u
       # echo "$u -> $v"
       gScore[$v]=$tentative_gScore
-      fScore[$v]=$tentative_gScore
-      # fScore[$v]=$((tentative_gScore + vr * vc))
+      # fScore[$v]=$tentative_gScore
+      fScore[$v]=$((tentative_gScore + vr * vc))
       enqueue_if_missing $v ${fScore[$v]}
     fi
   done
