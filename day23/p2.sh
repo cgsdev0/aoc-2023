@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILE=input.txt
+FILE=sample.txt
 
 size=$(wc -l < $FILE | cut -d' ' -f2)
 y=0
@@ -183,7 +183,7 @@ for node in "${!nodes[@]}"; do
 done
 
 visited=()
-target="125,137"
+target="$((size-1)),$((size-2))"
 
 function debug() {
   echo "$@" 1>&2
