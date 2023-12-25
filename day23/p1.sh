@@ -124,7 +124,7 @@ for node in "${!nodes[@]}"; do
     if [[ $char == F ]] && [[ $node != $item ]]; then
       echo "F $counter ($node) -> ($item)"
       add_edge $node $item $counter $dir
-      counter=0
+      counter=1
       continue
     fi
     if [[ $char == "#" ]] || [[ "$char" == "" ]]; then
