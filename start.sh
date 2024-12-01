@@ -1,12 +1,12 @@
 #!/bin/bash
 
 DAY=$1
-DIR=test$1
+DIR=day$1
 YEAR=2024
 
 cd ~/aoc
-mkdir -p $DIR
-cd $DIR
+mkdir -p "$YEAR/$DIR"
+cd "$YEAR/$DIR"
 
 touch p1.sh p2.sh
 chmod +x p1.sh p2.sh
@@ -14,7 +14,11 @@ chmod +x p1.sh p2.sh
 cat <<-EOF | tee p1.sh > p2.sh
 #!/bin/bash
 
+FILE="$1"
+
 clear
+
+cat "\$FILE"
 EOF
 
 curl "https://adventofcode.com/$YEAR/day/$DAY/input" \
@@ -34,5 +38,4 @@ tmux new-window
 tmux send-keys "cd ~/aoc/$YEAR/$DIR; vim p1.sh" Enter
 tmux split-window -h
 tmux send-keys "cd ~/aoc/$YEAR/$DIR" Enter
-tmux send-keys "watch-and-reload ./p1.sh sample*.txt input.txt" Enter
-
+tmux send-keys "~/aoc/test-runner $YEAR $DAY" Enter
