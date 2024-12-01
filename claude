@@ -7,6 +7,11 @@ while IFS= read -r line; do
   PROMPT="${PROMPT}$line\n"
 done
 
+# dear reader - this is NOT an automated solver;
+# this is merely a glorified web scraper.
+# I use it to download the example inputs and solution
+# because i am lazy
+
 curl -Ss https://api.anthropic.com/v1/messages \
      -H "Content-Type: application/json" \
      -H "x-api-key: $(cat ~/.claude)" \
