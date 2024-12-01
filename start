@@ -38,7 +38,7 @@ chmod +x p1.sh p2.sh
 cat <<-EOF | tee p1.sh > p2.sh
 #!/bin/bash
 
-FILE="$1"
+FILE="\$1"
 
 cat "\$FILE"
 EOF
