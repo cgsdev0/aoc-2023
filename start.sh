@@ -2,7 +2,7 @@
 
 DAY=$1
 DIR=test$1
-YEAR=2023
+YEAR=2024
 
 cd ~/aoc
 mkdir -p $DIR
