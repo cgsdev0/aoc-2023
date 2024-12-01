@@ -1,8 +1,8 @@
 #!/bin/bash
 
-clear
+FILE="$1"
 
-FILE=input.txt
+sleep 2
 
 paste -d'-' \
   <(tr -s ' ' < "$FILE" | cut -d' ' -f1 | sort -n) \

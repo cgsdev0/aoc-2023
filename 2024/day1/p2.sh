@@ -1,8 +1,6 @@
 #!/bin/bash
 
-clear
-
-FILE=input.txt
+FILE=$1
 
 declare -A counts
 while read c n; do

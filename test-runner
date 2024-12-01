@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+colored_text() {
+    printf "\e[38;5;%sm%s\e[0m" $1 "$2"
+}
+
+_red() { colored_text 160 "$@"; }
+red() { _red "$@"; printf '\n'; }
+
+_green() { colored_text 46 "$@"; }
+green() { _green "$@"; printf '\n'; }
+
+_yellow() { colored_text 226 "$@"; }
+yellow() { _yellow "$@"; printf '\n'; }
+
+if ! which inotifywait &> /dev/null; then
+  echo "please install inotify-tools"
+  exit 1
+fi
+
+YEAR=$1
+DAY=$2
+PART=${3:-1}
+
+cleanup() {
+    pkill -TERM -P $PID &> /dev/null
+    kill -SIGTERM $PID &> /dev/null
+}
+
+cd ~/aoc/$YEAR/day$DAY
+
+function validator() {
+  local SOLUTION="$(cat $1)"
+  local BUFFERED=
+  local LEN=0
+  local line
+  while IFS= read -r line; do
+    [[ $LEN -gt 0 ]] && printf "%s\n" "$BUFFERED"
+    ((LEN++))
+    BUFFERED="$line"
+  done
+  if [[ $LEN -eq 1 ]] && [[ $BUFFERED =~ ^-?[0-9]*$ ]]; then
+    if [[ "$BUFFERED" == "$SOLUTION" ]]; then
+      green "$BUFFERED"
+      echo
+      spinner "Computing..." ./p${PART}.sh input.txt &
+      PID=$!
+    else
+      red "$BUFFERED"
+    fi
+  else
+    printf "%s\n" "$BUFFERED"
+  fi
+}
+
+trap "cleanup" EXIT
+while true; do
+    sleep 0.1
+    clear
+    ./p${PART}.sh sample1.txt \
+      | validator solution1.txt &
+    PID=$!
+
+    inotifywait -qq ../../test-runner p1.sh p2.sh input.txt sample*.txt -e MODIFY -e MOVE_SELF
+    pkill -TERM -P $PID &> /dev/null
+    kill -SIGTERM $PID &> /dev/null
+done
