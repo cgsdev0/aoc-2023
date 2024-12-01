@@ -24,6 +24,11 @@ fetch_examples() {
 }
 
 start_part_2() {
+  SANITY="$(cat p2.sh | sha256sum | cut -d' ' -f1)"
+  if [[ "$SANITY" == "eebb73afcb24017e3fb49b70786a41e0c2e01fbef4230ae0b75294e93d265205" ]]; then
+    echo "Basing p2 on p1 because p2 was blank"
+    cp p1.sh p2.sh
+  fi
   fetch_examples
   tmux next-window
   tmux select-pane -t right
@@ -57,7 +62,6 @@ tmux send-keys "~/aoc/test-runner $YEAR $DAY" Enter
 echo
 echo
 echo ===========================
-read -n 1 -s -r -p "Press any key to begin part 2"
-echo ===========================
+read -n 1 -s -r -p "Press any key to begin part 2\n"
 
 start_part_2
