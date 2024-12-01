@@ -19,6 +19,7 @@ fetch_examples() {
     printf "%s" "$SOLUTION" > solution${INDEX}.txt
     ((INDEX++))
   done < <(curl -Ss "https://adventofcode.com/$YEAR/day/$DAY" \
+    -H "User-Agent: https://aoc.cgs.dev friendly bash script by s@cgs.dev" \
     -H "cookie: session=$(cat ~/.aoc)" \
     | pup 'article' | ~/aoc/claude | tee /dev/stderr | jq -r '.content[0].text' | jq -rc '.[]')
 }
@@ -49,7 +50,8 @@ cat "\$FILE"
 EOF
 
 curl -Ss "https://adventofcode.com/$YEAR/day/$DAY/input" \
-        -H "cookie: session=$(cat ~/.aoc)" > input.txt
+    -H "User-Agent: https://aoc.cgs.dev friendly bash script by s@cgs.dev" \
+    -H "cookie: session=$(cat ~/.aoc)" > input.txt
 
 fetch_examples
 
