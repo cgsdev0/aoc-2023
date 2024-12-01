@@ -22,12 +22,13 @@ curl "https://adventofcode.com/$YEAR/day/$DAY/input" \
 
 INDEX=1
 while IFS= read -r line; do
-  EXAMPLE="$(echo "$line" | jq '.example')"
-  SOLUTION="$(echo "$solution" | jq '.solution')"
+  printf "\n\n\n%s" "$line" &> /dev/stderr
+  EXAMPLE="$(echo "$line" | jq -r '.example')"
+  SOLUTION="$(echo "$line" | jq -r '.solution')"
   printf "%s" "$EXAMPLE" > sample${INDEX}.txt
   printf "%s" "$SOLUTION" > solution${INDEX}.txt
   ((INDEX++))
-done < <(curl -Ss "https://adventofcode.com/$YEAR/day/$DAY" | pup 'article' | ~/aoc/claude | jq -r '.content[0].text' | jq -rc '.[]')
+done < <(curl -Ss "https://adventofcode.com/$YEAR/day/$DAY" | pup 'article' | ~/aoc/claude | tee /dev/stderr | jq -r '.content[0].text' | jq -rc '.[]')
 
 tmux new-window
 tmux send-keys "cd ~/aoc/$YEAR/$DIR; vim p1.sh" Enter
