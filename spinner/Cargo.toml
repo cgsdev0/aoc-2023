@@ -1,0 +1,8 @@
+[package]
+name = "spinner"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+pretty-duration = "0.1.1"
+spinners = "4.1.1"
