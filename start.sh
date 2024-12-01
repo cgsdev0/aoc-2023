@@ -27,7 +27,7 @@ while IFS= read -r line; do
   printf "%s" "$EXAMPLE" > sample${INDEX}.txt
   printf "%s" "$SOLUTION" > solution${INDEX}.txt
   ((INDEX++))
-done < <(curl -Ss "https://adventofcode.com/$YEAR/day/$DAY" | pup 'article' | ~/aoc/claude | jq -r '.content[0].text' jq -rc '.[]')
+done < <(curl -Ss "https://adventofcode.com/$YEAR/day/$DAY" | pup 'article' | ~/aoc/claude | jq -r '.content[0].text' | jq -rc '.[]')
 
 tmux new-window
 tmux send-keys "cd ~/aoc/$YEAR/$DIR; vim p1.sh" Enter
