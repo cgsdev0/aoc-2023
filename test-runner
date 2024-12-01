@@ -57,8 +57,8 @@ trap "cleanup" EXIT
 while true; do
     sleep 0.1
     clear
-    ./p${PART}.sh sample1.txt \
-      | validator solution1.txt &
+    ./p${PART}.sh sample${PART}.txt \
+      | validator solution${PART}.txt &
     PID=$!
 
     inotifywait -qq ../../test-runner p1.sh p2.sh input.txt sample*.txt -e MODIFY -e MOVE_SELF
