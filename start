@@ -17,9 +17,8 @@ fetch_examples() {
 
   while IFS= read -r line; do
     printf "\n\n\n%s" "$line" &> /dev/stderr
-    EXAMPLE="$(echo "$line" | jq -r '.example')"
+    echo "$line" | jq -r '.example' > sample${INDEX}.txt
     SOLUTION="$(echo "$line" | jq -r '.solution')"
-    printf "%s\n" "$EXAMPLE" > sample${INDEX}.txt
     printf "%s" "$SOLUTION" > solution${INDEX}.txt
     ((INDEX++))
   done < <(cat puzzle.html | pup 'article' | ~/aoc/misc/claude | tee /dev/stderr | jq -r '.content[0].text' | jq -rc '.[]')
@@ -38,7 +37,7 @@ start_part_2() {
   tmux send-keys "~/aoc/test-runner $YEAR $DAY 2" Enter
   tmux select-pane -t top-right
   tmux send-keys C-c
-  tmux send-keys "~/aoc/misc/browser $YEAR $DAY 1" Enter
+  tmux send-keys "~/aoc/misc/browser $YEAR $DAY" Enter
   tmux select-pane -t left
 }
 
@@ -68,7 +67,7 @@ tmux send-keys "cd ~/aoc/$YEAR/$DIR" Enter
 tmux send-keys "~/aoc/misc/browser $YEAR $DAY" Enter
 tmux split-window -v
 tmux send-keys "cd ~/aoc/$YEAR/$DIR" Enter
-tmux send-keys "~/aoc/test-runner $YEAR $DAY" Enter
+tmux send-keys "~/aoc/test-runner $YEAR $DAY 1" Enter
 
 echo
 echo
