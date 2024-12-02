@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+YEAR=$1
+DAY=$2
+PART=${3:-1}
+
+cd ~/aoc/$YEAR/day$DAY
+
+cat puzzle.html \
+  | pup -p -i 0 --pre article \
+  | html-minifier --collapse-whitespace \
+  | pandoc --from=html --to=markdown_strict+backtick_code_blocks --lua-filter=../../misc/code_block.lua --wrap=none \
+  | sed 's/` \([.,:;!?)]\)/`\1/g' \
+  | sed 's/\([(]\) `/\1`/g' \
+  | sed 's/* \([.,:;!?)]\)/*\1/g' \
+  | sed 's/\([(]\) \*/\1*/g' \
+  | glow -p -s ../../misc/glow.json
