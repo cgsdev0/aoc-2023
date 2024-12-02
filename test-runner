@@ -57,9 +57,14 @@ trap "cleanup" EXIT
 while true; do
     sleep 0.1
     clear
-    ./p${PART}.sh sample${PART}.txt \
-      | validator solution${PART}.txt &
-    PID=$!
+    if [[ -z "$4" ]]; then
+      ./p${PART}.sh sample${PART}.txt \
+        | validator solution${PART}.txt &
+      PID=$!
+    else
+      spinner "" ./p${PART}.sh input.txt &
+      PID=$!
+    fi
 
     inotifywait -qq ../../test-runner p1.sh p2.sh input.txt sample*.txt -e MODIFY -e MOVE_SELF
     pkill -TERM -P $PID &> /dev/null

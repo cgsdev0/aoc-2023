@@ -38,7 +38,7 @@ start_part_2() {
   tmux send-keys "~/aoc/test-runner $YEAR $DAY 2" Enter
   tmux select-pane -t top-right
   tmux send-keys C-c
-  tmux send-keys "~/aoc/misc/browser $YEAR $DAY" Enter
+  tmux send-keys "~/aoc/misc/browser $YEAR $DAY 1" Enter
   tmux select-pane -t left
 }
 
