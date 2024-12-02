@@ -24,8 +24,8 @@
     "crossed_out": true
   },
   "emph": {
-    "background_color": "#1f2335",
-    "color": "#bb9af7"
+    "color": "#e0af68",
+    "italic": true
   },
   "strong": {
     "color": "#a9b1d6",
@@ -63,8 +63,6 @@
   },
   "code": {
     "background_color": "#1f2335",
-    "prefix": " ",
-    "suffix": " ",
     "color": "#9ece6a"
   },
   "code_block": {

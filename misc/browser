@@ -6,6 +6,8 @@ PART=${3:-1}
 
 cd ~/aoc/$YEAR/day$DAY
 
+set -o pipefail
+while true; do
 cat puzzle.html \
   | pup -p -i 0 --pre article \
   | html-minifier --collapse-whitespace \
@@ -14,4 +16,6 @@ cat puzzle.html \
   | sed 's/\([(]\) `/\1`/g' \
   | sed 's/* \([.,:;!?)]\)/*\1/g' \
   | sed 's/\([(]\) \*/\1*/g' \
-  | glow -p -s ../../misc/glow.json
+  | glow -p -s ../../misc/glow.json \
+  || exit
+done
