@@ -43,7 +43,7 @@ function validator() {
     if [[ "$BUFFERED" == "$SOLUTION" ]]; then
       green "$BUFFERED"
       echo
-      spinner "Computing..." ./p${PART}.sh input.txt &
+      spinner "" ./p${PART}.sh input.txt &
       PID=$!
     else
       red "$BUFFERED"

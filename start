@@ -15,7 +15,7 @@ fetch_examples() {
     printf "\n\n\n%s" "$line" &> /dev/stderr
     EXAMPLE="$(echo "$line" | jq -r '.example')"
     SOLUTION="$(echo "$line" | jq -r '.solution')"
-    printf "%s" "$EXAMPLE" > sample${INDEX}.txt
+    printf "%s\n" "$EXAMPLE" > sample${INDEX}.txt
     printf "%s" "$SOLUTION" > solution${INDEX}.txt
     ((INDEX++))
   done < <(curl -Ss "https://adventofcode.com/$YEAR/day/$DAY" \
