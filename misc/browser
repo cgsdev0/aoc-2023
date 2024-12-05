@@ -4,7 +4,13 @@ YEAR=$1
 DAY=$2
 PART=${3:-1}
 
-cd ~/aoc/$YEAR/day$DAY
+if [[ $DAY -lt 10 ]]; then
+  DIR=day0$1
+else
+  DIR=day$1
+fi
+
+cd ~/aoc/$YEAR/$DIR
 
 set -o pipefail
 while true; do

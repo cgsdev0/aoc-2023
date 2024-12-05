@@ -1,7 +1,11 @@
 #!/bin/bash
 
 DAY=$1
-DIR=day$1
+if [[ $DAY -lt 10 ]]; then
+  DIR=day0$1
+else
+  DIR=day$1
+fi
 YEAR=${2:-2024}
 
 cd ~/aoc

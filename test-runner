@@ -22,12 +22,18 @@ YEAR=$1
 DAY=$2
 PART=${3:-1}
 
+if [[ $DAY -lt 10 ]]; then
+  DIR=day0$1
+else
+  DIR=day$1
+fi
+
 cleanup() {
     pkill -TERM -P $PID &> /dev/null
     kill -SIGTERM $PID &> /dev/null
 }
 
-cd ~/aoc/$YEAR/day$DAY
+cd ~/aoc/$YEAR/$DIR
 
 function validator() {
   local SOLUTION="$(cat $1)"
