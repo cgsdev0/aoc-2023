@@ -35,14 +35,7 @@ is_valid() {
 }
 
 middle() {
-  local line
-  local -a arr
-  while IFS= read -r line; do
-    split "$line" ' '
-    LEN="${#arr[@]}"
-    ((LEN/=2))
-    echo ${arr["$LEN"]}
-  done
+  awk '{print $((NF+1)/2)}'
 }
 
 add_deps() {
