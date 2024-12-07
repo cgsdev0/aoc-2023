@@ -1,7 +1,6 @@
 #!/bin/bash
 
 FILE="$1"
-# FILE="input.txt"
 
 split() {
    IFS=$'\n' read -d "" -ra arr <<< "${1//$2/$'\n'}"
@@ -16,9 +15,6 @@ permute() {
     return
   fi
 
-  # echo "${arr[@]}"
-
-  # remove the first element
   local first=${arr[0]}
 
   case "$OP" in
@@ -32,11 +28,13 @@ permute() {
       ACC="${ACC}${first}"
       ;;
   esac
+
   if [[ $LEN -eq 1 ]]; then
     # base case
     echo $ACC
     return
   fi
+
   arr=(${arr[@]:1})
   permute $ACC '*'
   permute $ACC '|'
@@ -49,12 +47,9 @@ main() {
     test_number="${line%%:*}"
     rest="${line##*: }"
     split "$rest" " "
-    # echo "${arr[@]}"
-    # echo "$test_number ${arr[@]}"
     permute \
       | grep "^$test_number$" \
       | head -n1
-    # echo "$test_number $RESULT"
   done
 }
 
