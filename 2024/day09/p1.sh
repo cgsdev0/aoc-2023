@@ -38,7 +38,6 @@ defrag() {
     disk[$i]=${disk[$j]}
     disk[$j]='.'
     ((j--))
-    # show_disk
   done
 }
 
