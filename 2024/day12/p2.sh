@@ -8,7 +8,6 @@ declare -A grid
 RID=0
 declare -A regions
 declare -A area
-declare -A perimeter
 while IFS= read -r -n1 c; do
   if [[ "$c" == "" ]]; then
     ((y++))
@@ -44,10 +43,8 @@ for ((gy=0; gy<height; gy++)); do
     d="${x},$((y+1))"
     l="$((x-1)),${y}"
     r="$((x+1)),${y}"
-    P=4
     if [[ $c == ${grid[$up]} ]]; then
       queue+=("$up")
-      ((P--))
     else
       if [[ -n ${edges[$RID]} ]]; then
         edges[$RID]="${edges[$RID]} $up,U"
@@ -57,7 +54,6 @@ for ((gy=0; gy<height; gy++)); do
     fi
     if [[ $c == ${grid[$d]} ]]; then
       queue+=("$d")
-      ((P--))
     else
       if [[ -n ${edges[$RID]} ]]; then
         edges[$RID]="${edges[$RID]} $d,D"
@@ -67,7 +63,6 @@ for ((gy=0; gy<height; gy++)); do
     fi
     if [[ $c == ${grid[$l]} ]]; then
       queue+=("$l")
-      ((P--))
     else
       if [[ -n ${edges[$RID]} ]]; then
         edges[$RID]="${edges[$RID]} $l,L"
@@ -77,7 +72,6 @@ for ((gy=0; gy<height; gy++)); do
     fi
     if [[ $c == ${grid[$r]} ]]; then
       queue+=("$r")
-      ((P--))
     else
       if [[ -n ${edges[$RID]} ]]; then
         edges[$RID]="${edges[$RID]} $r,R"
@@ -85,16 +79,7 @@ for ((gy=0; gy<height; gy++)); do
         edges[$RID]="$r,R"
       fi
     fi
-    ((perimeter[$RID]+=P))
     ((area[$RID]+=1))
-    # if [[ ${grid[$u]} == $c ]]; then
-    #   regions[$x,$y]=${regions[$u]}
-    # elif [[ ${grid[$l]} == $c ]]; then
-    #   regions[$x,$y]=${regions[$l]}
-    # else
-    #   ((RID++))
-    #   regions[$x,$y]=$RID
-    # fi
     done
     if [[ -n $DID_ANYTHING ]]; then
       ((RID++))
